@@ -57,8 +57,8 @@ public class ReservationService {
     public ResponseEntity reserveSeats(SeatReservationDTO seatReservationDTO) {
         SeatHold seatHold = holdMap.get(seatReservationDTO.getSeatHoldId());
 
-        if (seatHold.isEmpty() || seatReservationDTO.getCustomerEmail().isEmpty() || !isValidCustomer(seatHold, seatReservationDTO)) {
-            return new ResponseEntity("Your email does not match the email on file for this hold.", HttpStatus.BAD_REQUEST);
+        if (seatHold == null || seatReservationDTO.getCustomerEmail().isEmpty() || !isValidCustomer(seatHold, seatReservationDTO)) {
+            return new ResponseEntity("The details provided are not valid for this hold.", HttpStatus.BAD_REQUEST);
         }
 
         if (seatHold.getExpirationTimer() < System.currentTimeMillis()) {
@@ -130,7 +130,7 @@ public class ReservationService {
      *
      * @param numSeats The number of seats to find.
      */
-    public Set<Seat> findBestSeats(int numSeats) {
+    private Set<Seat> findBestSeats(int numSeats) {
         Set<Seat> seatFinder = new HashSet<Seat>();
         int count = numSeats;
         for (int row = 0; row < venue.getRowSize(); row++) {
