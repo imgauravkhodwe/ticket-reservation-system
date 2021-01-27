@@ -4,17 +4,17 @@ Use case:
 Implement a simple ticket service that facilitates the discovery, temporary hold, and final reservation of seats within a high-demand performance venue.
 For example, see the seating arrangement below.
  
-                                               ----------[[  STAGE  ]]----------
-                                               ---------------------------------
-                                               sssssssssssssssssssssssssssssssss
-                                               sssssssssssssssssssssssssssssssss
-                                               sssssssssssssssssssssssssssssssss
-                                               sssssssssssssssssssssssssssssssss
-                                               sssssssssssssssssssssssssssssssss
-                                               sssssssssssssssssssssssssssssssss
-                                               sssssssssssssssssssssssssssssssss
-                                               sssssssssssssssssssssssssssssssss
-                                               sssssssssssssssssssssssssssssssss
+                                            ----------[[  STAGE  ]]----------
+                                            ---------------------------------
+                                            sssssssssssssssssssssssssssssssss
+                                            sssssssssssssssssssssssssssssssss
+                                            sssssssssssssssssssssssssssssssss
+                                            sssssssssssssssssssssssssssssssss
+                                            sssssssssssssssssssssssssssssssss
+                                            sssssssssssssssssssssssssssssssss
+                                            sssssssssssssssssssssssssssssssss
+                                            sssssssssssssssssssssssssssssssss
+                                            sssssssssssssssssssssssssssssssss
  
 
 Your homework assignment is to design and write a Ticket Service that provides the following functions,
