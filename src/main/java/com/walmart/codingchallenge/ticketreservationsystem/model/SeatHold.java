@@ -43,8 +43,8 @@ public class SeatHold extends Customer {
         this.setFirstName(firstName);
         this.setLastName(lastName);
         this.setCustomerEmail(customerEmail);
-        // Hold ticket for 15 min
-        this.expirationTimer = System.currentTimeMillis() + 900000;
+        // Hold ticket for 5 min
+        this.expirationTimer = System.currentTimeMillis() + 300000;
         this.seats = seats;
     }
 
