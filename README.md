@@ -34,7 +34,7 @@ Assumption:
 •	Data will be stored localy.
 •	The seats can be placed on hold for 5 minutes after which they will be free/available
 •	The seats will be reserved on first come first serve basis, the best seating order is starting close to the stage starting left to right.
-• An attempt will be made to keep all the users in one booking together in one row but if not possible they will be allocated seating starting close to the stage starting left to right which may put some user in a group in row behind.
+•	An attempt will be made to keep all the users in one booking together in one row but if not possible they will be allocated seating starting close to the stage starting left to right which may put some user in a group in row behind.
 •	4 APIs will be availble for the consumer a) To get total number of seats in the venue b) To get total number of FREE seat in the venue c) To reserve seats for 5 min. d) To book the seats the user had reserved
 •	The will be three status for the seats a) HOLD b) FREE and c) BOOKED
 ```
