@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class VenueController {
+
     private final VenueService venueService;
 
     @Autowired

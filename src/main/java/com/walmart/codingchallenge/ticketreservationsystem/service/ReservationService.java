@@ -7,6 +7,8 @@ package com.walmart.codingchallenge.ticketreservationsystem.service;
 import com.walmart.codingchallenge.ticketreservationsystem.model.*;
 import com.walmart.codingchallenge.ticketreservationsystem.util.Constants;
 import com.walmart.codingchallenge.ticketreservationsystem.util.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,9 @@ import java.util.*;
 
 @Service
 public class ReservationService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReservationService.class);
+
     public Map<String, SeatHold> holdMap = new HashMap<>();
     @Autowired
     Venue venue;
@@ -54,16 +59,19 @@ public class ReservationService {
         utils.clearExpiredHolds();
 
         if (seatHoldDTO.getNumberOfSeats() <= 0) {
+            logger.error("Invalid seat number requested for hold - " + seatHoldDTO.getNumberOfSeats());
             return new ResponseEntity("You must hold at least 1 seat.", HttpStatus.BAD_REQUEST);
         }
 
         if (seatHoldDTO.getNumberOfSeats() > getAvailableSeats()) {
+            logger.error("Not enough seats available for hold - " + seatHoldDTO.getNumberOfSeats());
             return new ResponseEntity("Not enough seats are left to fulfill your order.", HttpStatus.ACCEPTED);
         }
 
         Set<Seat> seatOrder = findBestSeats(seatHoldDTO.getNumberOfSeats());
         SeatHold seatHold = new SeatHold(seatHoldDTO.getFirstName(), seatHoldDTO.getLastName(), seatHoldDTO.getCustomerEmail(), seatOrder);
         holdMap.put(seatHold.getSeatHoldId(), seatHold);
+        logger.info("Seat placed on hold - " + seatHold.getSeatHoldId());
         return new ResponseEntity(seatHold, HttpStatus.OK);
     }
 
@@ -78,10 +86,12 @@ public class ReservationService {
         SeatHold seatHold = holdMap.get(seatReservationDTO.getSeatHoldId());
 
         if (seatHold == null || seatReservationDTO.getCustomerEmail().isEmpty() || !isValidCustomer(seatHold, seatReservationDTO)) {
+            logger.error("Invalid hold details, cannot reserve seat(s) - " + seatReservationDTO.getSeatHoldId());
             return new ResponseEntity("The details provided are not valid for this hold.", HttpStatus.BAD_REQUEST);
         }
 
         if (seatHold.getExpirationTimer() < System.currentTimeMillis()) {
+            logger.error("User's hold has expired - " + seatReservationDTO.getSeatHoldId());
             return new ResponseEntity("Your hold reservation has expired. Please place a new hold.", HttpStatus.BAD_REQUEST);
         }
 
@@ -96,6 +106,7 @@ public class ReservationService {
         UUID uuid = UUID.randomUUID();
         seatHold.setConfirmationCode(uuid.toString());
         seatHold.setExpirationTimer(0L);
+        logger.info("Seat(s) reservation is confirmed - " + uuid.toString());
         return new ResponseEntity(seatHold, HttpStatus.OK);
     }
 
