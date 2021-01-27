@@ -23,11 +23,11 @@ Your homework assignment is to design and write a Ticket Service that provides t
 •	Reserve and commit a specific group of held seats for a customer
  
 Requirements:
-
+```
 •	Use a programming language that you are comfortable with. We work in Java, but we are more interested in understanding how you think than in language specifics.
 •	The solution and tests should build.
 •	A README file should be included in your submission that documents your assumptions and includes instructions for building the solution and executing the tests.
-
+```
 Assumption:
 ```
 •	The theather/venue in for 10 rows and 50 coloum making total seat capacity of 500.
@@ -46,10 +46,9 @@ Dependency used:
 •	maven
 ```
 To run the project:
+```
 •	git clone https://github.com/imgauravkhodwe/ticket-reservation-system.git
 •	cd in to the project folder
-•	run 
-```
-mvn clean package spring-boot:run
-```
+•	run mvn clean package spring-boot:run
 •	Swagger can be reached at: http://localhost:8080/swagger-ui.html ( I recommend hit the APIs via postman, as swagger may sometime return inaccurate status code )
+```
