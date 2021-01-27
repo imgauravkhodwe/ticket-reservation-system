@@ -39,3 +39,14 @@ Assumption:
 •	The will be three status for the seats a) HOLD b) FREE and c) BOOKED
 
 Dependency used:
+
+•	Lombok
+•	Swagger
+•	Springboot
+•	maven
+
+To run the project:
+•	git clone https://github.com/imgauravkhodwe/ticket-reservation-system.git
+•	cd in to the project folder
+•	run mvn clean package spring-boot:run
+•	Swagger can be reached at: http://localhost:8080/swagger-ui.html ( I recommend hit the APIs via postman, as swagger may sometime return inaccurate status code )
