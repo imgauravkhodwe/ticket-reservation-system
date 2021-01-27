@@ -23,13 +23,13 @@ public class VenueServiceTest {
     public void getTotalSeatsTest() {
         ResponseEntity<NumberOfSeatsDTO> responseEntity = venueService.getTotalSeats();
         assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
-        assertEquals(responseEntity.getBody().getNumberOfSeat(), 500);
+        assertEquals(500, responseEntity.getBody().getNumberOfSeat());
     }
 
     @Test
     public void getAvailableSeatTest() {
-        ResponseEntity<NumberOfSeatsDTO> responseEntity = venueService.getTotalSeats();
+        ResponseEntity<NumberOfSeatsDTO> responseEntity = venueService.getAvailableSeat();
         assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
-        assertEquals(responseEntity.getBody().getNumberOfSeat(), 500);
+        assertEquals(370, responseEntity.getBody().getNumberOfSeat());
     }
 }

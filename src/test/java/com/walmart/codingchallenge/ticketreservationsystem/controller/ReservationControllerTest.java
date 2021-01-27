@@ -88,6 +88,21 @@ public class ReservationControllerTest {
     }
 
     @Test
+    public void reserveSeatsWithCorrectIDTestAndExtraSeats() {
+        seatHoldDTO.setNumberOfSeats(100);
+        ResponseEntity<SeatHold> responseHoldConfirmation = reservationController.holdAvailableSeats(seatHoldDTO);
+
+        seatReservationDTO.setSeatHoldId(responseHoldConfirmation.getBody().getSeatHoldId());
+
+        ResponseEntity<SeatHold> responseReservationConfirmation = reservationController.reserveHeldSeat(seatReservationDTO);
+        assertTrue(responseReservationConfirmation.getStatusCode().is2xxSuccessful());
+        assertNotNull(responseReservationConfirmation.getBody().getConfirmationCode());
+        assertEquals("firstName", responseReservationConfirmation.getBody().getFirstName());
+        assertEquals("lastName", responseReservationConfirmation.getBody().getLastName());
+        assertEquals("abc@gmail.com", responseReservationConfirmation.getBody().getCustomerEmail());
+    }
+
+    @Test
     public void reserveSeatsWithWrongUserTest() {
         seatHoldDTO.setNumberOfSeats(5);
         ResponseEntity<SeatHold> responseHoldConfirmation = reservationController.holdAvailableSeats(seatHoldDTO);

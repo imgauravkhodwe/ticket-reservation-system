@@ -59,19 +59,19 @@ public class ReservationService {
         utils.clearExpiredHolds();
 
         if (seatHoldDTO.getNumberOfSeats() <= 0) {
-            logger.error("Invalid seat number requested for hold - " + seatHoldDTO.getNumberOfSeats());
+            logger.error("Invalid seat(s) number requested for hold - " + seatHoldDTO.getNumberOfSeats());
             return new ResponseEntity("You must hold at least 1 seat.", HttpStatus.BAD_REQUEST);
         }
 
         if (seatHoldDTO.getNumberOfSeats() > getAvailableSeats()) {
-            logger.error("Not enough seats available for hold - " + seatHoldDTO.getNumberOfSeats());
+            logger.error("Not enough seat(s) available for hold - " + seatHoldDTO.getNumberOfSeats());
             return new ResponseEntity("Not enough seats are left to fulfill your order.", HttpStatus.ACCEPTED);
         }
 
         Set<Seat> seatOrder = findBestSeats(seatHoldDTO.getNumberOfSeats());
         SeatHold seatHold = new SeatHold(seatHoldDTO.getFirstName(), seatHoldDTO.getLastName(), seatHoldDTO.getCustomerEmail(), seatOrder);
         holdMap.put(seatHold.getSeatHoldId(), seatHold);
-        logger.info("Seat placed on hold - " + seatHold.getSeatHoldId());
+        logger.info("Seat(s) placed on hold - " + seatHold.getSeatHoldId());
         return new ResponseEntity(seatHold, HttpStatus.OK);
     }
 
@@ -146,7 +146,7 @@ public class ReservationService {
         }
         if (numSeats != 0) {
             for (int row = 0; row < venue.getNumRows() && numSeats > 0; row++) {
-                if (venue.getAvailableSeatsInRow(row) < venue.getNumColumns()) {
+                if (venue.getAvailableSeatsInRow(row) <= venue.getNumColumns()) {
                     for (int i = venue.getColumnSize(row); i < venue.getNumColumns() && numSeats > 0; i++) {
                         Seat newReservation = new Seat(row, i, Constants.STATUS_ON_HOLD);
                         numSeats--;
