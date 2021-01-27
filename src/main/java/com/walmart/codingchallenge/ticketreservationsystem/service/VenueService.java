@@ -1,3 +1,7 @@
+/**
+ * @author Gaurav Khodwe
+ */
+
 package com.walmart.codingchallenge.ticketreservationsystem.service;
 
 import com.walmart.codingchallenge.ticketreservationsystem.model.NumberOfSeatsDTO;
@@ -20,14 +24,18 @@ public class VenueService {
         return new ResponseEntity(new NumberOfSeatsDTO(venue.getVenueSize()), HttpStatus.OK);
     }
 
-
     /**
-     * Shows the number of seats marked as AVAIL within the Venue Object.
+     * Get seats from the venue in FREE status
+     * @return responseEntity .
      */
     public ResponseEntity getAvailableSeat() {
         return new ResponseEntity(new NumberOfSeatsDTO(this.getAvailableSeats()), HttpStatus.OK);
     }
 
+    /**
+     * Get seats from the venue in FREE status
+     * @return int .
+     */
     private int getAvailableSeats() {
         return venue.getAvailSeats();
     }

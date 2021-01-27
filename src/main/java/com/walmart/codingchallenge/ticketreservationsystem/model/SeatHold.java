@@ -1,19 +1,24 @@
+/**
+ * @author Gaurav Khodwe
+ */
+
 package com.walmart.codingchallenge.ticketreservationsystem.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 public class SeatHold extends Customer {
 
-    private int seatHoldId;
+    private String seatHoldId;
 
     @NotNull(message = "NumberOfSeats cannot be null")
     @NotEmpty(message = "NumberOfSeats cannot be empty")
@@ -28,13 +33,12 @@ public class SeatHold extends Customer {
 
     /**
      * Creates an Object that is used to store and handle customer seat orders.
-     *
-     * @param customerEmail A variable provided by the customer to identify them.
-     * @param seats     A HashSet used to store the seats held for the SeatHold object.
+     * @param firstName, lastName, customerEmail these are variables provided by the customer to identify them.
+     * @param seats A HashSet used to store the seats held for the SeatHold object.
      */
     public SeatHold(String firstName, String lastName, String customerEmail, Set<Seat> seats) {
         Random random = new Random();
-        this.seatHoldId = random.nextInt(900000000) + 100000000;
+        this.seatHoldId = UUID.randomUUID().toString();
         this.numberOfSeats = seats.size();
         this.setFirstName(firstName);
         this.setLastName(lastName);

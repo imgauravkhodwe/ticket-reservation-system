@@ -2,7 +2,7 @@
  * @author Gaurav Khodwe
  */
 
-package com.walmart.codingchallenge.ticketreservationsystem.service;
+package com.walmart.codingchallenge.ticketreservationsystem.controller;
 
 import com.walmart.codingchallenge.ticketreservationsystem.TicketReservationSystemApplication;
 import com.walmart.codingchallenge.ticketreservationsystem.model.SeatHold;
@@ -17,9 +17,9 @@ import org.springframework.http.ResponseEntity;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TicketReservationSystemApplication.class)
-public class ReservationServiceTest {
+public class ReservationControllerTest {
     @Autowired
-    ReservationService reservationService;
+    ReservationController reservationController;
 
     private SeatHoldDTO seatHoldDTO = new SeatHoldDTO();
 
@@ -39,7 +39,7 @@ public class ReservationServiceTest {
     @Test
     public void findAndHoldSeatsTest() {
         seatHoldDTO.setNumberOfSeats(5);
-        ResponseEntity<SeatHold> responseEntity = reservationService.findAndHoldSeats(seatHoldDTO);
+        ResponseEntity<SeatHold> responseEntity = reservationController.holdAvailableSeats(seatHoldDTO);
         assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
         assertNull(responseEntity.getBody().getConfirmationCode());
         assertEquals(5, responseEntity.getBody().getNumberOfSeats());
@@ -51,7 +51,7 @@ public class ReservationServiceTest {
     @Test
     public void findAndHoldZeroSeatsTest() {
         seatHoldDTO.setNumberOfSeats(0);
-        ResponseEntity responseEntity = reservationService.findAndHoldSeats(seatHoldDTO);
+        ResponseEntity responseEntity = reservationController.holdAvailableSeats(seatHoldDTO);
         assertTrue(responseEntity.getStatusCode().is4xxClientError());
         assertEquals("You must hold at least 1 seat.", responseEntity.getBody());
     }
@@ -59,7 +59,7 @@ public class ReservationServiceTest {
     @Test
     public void findAndHoldOutOfCapacitySeatsTest() {
         seatHoldDTO.setNumberOfSeats(9999);
-        ResponseEntity responseEntity = reservationService.findAndHoldSeats(seatHoldDTO);
+        ResponseEntity responseEntity = reservationController.holdAvailableSeats(seatHoldDTO);
         assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
         assertEquals("Not enough seats are left to fulfill your order.", responseEntity.getBody());
     }
@@ -67,7 +67,7 @@ public class ReservationServiceTest {
     @Test
     public void reserveSeatsWithWrongIDTest() {
         seatReservationDTO.setSeatHoldId("0");
-        ResponseEntity responseEntity = reservationService.reserveSeats(seatReservationDTO);
+        ResponseEntity responseEntity = reservationController.reserveHeldSeat(seatReservationDTO);
         assertTrue(responseEntity.getStatusCode().is4xxClientError());
         assertEquals("The details provided are not valid for this hold.", responseEntity.getBody());
     }
@@ -75,11 +75,11 @@ public class ReservationServiceTest {
     @Test
     public void reserveSeatsWithCorrectIDTest() {
         seatHoldDTO.setNumberOfSeats(5);
-        ResponseEntity<SeatHold> responseHoldConfirmation = reservationService.findAndHoldSeats(seatHoldDTO);
+        ResponseEntity<SeatHold> responseHoldConfirmation = reservationController.holdAvailableSeats(seatHoldDTO);
 
         seatReservationDTO.setSeatHoldId(responseHoldConfirmation.getBody().getSeatHoldId());
 
-        ResponseEntity<SeatHold> responseReservationConfirmation = reservationService.reserveSeats(seatReservationDTO);
+        ResponseEntity<SeatHold> responseReservationConfirmation = reservationController.reserveHeldSeat(seatReservationDTO);
         assertTrue(responseReservationConfirmation.getStatusCode().is2xxSuccessful());
         assertNotNull(responseReservationConfirmation.getBody().getConfirmationCode());
         assertEquals("firstName", responseReservationConfirmation.getBody().getFirstName());
@@ -90,12 +90,12 @@ public class ReservationServiceTest {
     @Test
     public void reserveSeatsWithWrongUserTest() {
         seatHoldDTO.setNumberOfSeats(5);
-        ResponseEntity<SeatHold> responseHoldConfirmation = reservationService.findAndHoldSeats(seatHoldDTO);
+        ResponseEntity<SeatHold> responseHoldConfirmation = reservationController.holdAvailableSeats(seatHoldDTO);
         seatReservationDTO.setSeatHoldId(responseHoldConfirmation.getBody().getSeatHoldId());
         seatReservationDTO.setCustomerEmail("xyz@gmail.com");
         seatReservationDTO.setFirstName("lastName");
         seatReservationDTO.setLastName("firstName");
-        ResponseEntity<SeatHold> responseReservationConfirmation = reservationService.reserveSeats(seatReservationDTO);
+        ResponseEntity<SeatHold> responseReservationConfirmation = reservationController.reserveHeldSeat(seatReservationDTO);
         assertTrue(responseReservationConfirmation.getStatusCode().is4xxClientError());
         assertEquals("The details provided are not valid for this hold.", responseReservationConfirmation.getBody());
     }

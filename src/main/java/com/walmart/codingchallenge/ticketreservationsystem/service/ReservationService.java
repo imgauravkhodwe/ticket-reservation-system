@@ -1,7 +1,12 @@
+/**
+ * @author Gaurav Khodwe
+ */
+
 package com.walmart.codingchallenge.ticketreservationsystem.service;
 
 import com.walmart.codingchallenge.ticketreservationsystem.model.*;
 import com.walmart.codingchallenge.ticketreservationsystem.util.Constants;
+import com.walmart.codingchallenge.ticketreservationsystem.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,28 +16,42 @@ import java.util.*;
 
 @Service
 public class ReservationService {
-    public Map<Integer, SeatHold> holdMap = new HashMap<Integer, SeatHold>();
+    public Map<String, SeatHold> holdMap = new HashMap<>();
     @Autowired
     Venue venue;
+
+    @Autowired
+    Utils utils;
 
     @Autowired
     public ReservationService() {
     }
 
+    /**
+     * Get total number of FREE seats in the venue
+     */
     private int getAvailableSeats() {
         return venue.getAvailSeats();
     }
 
     /**
-     * Checks to ensure at least one seat is looking to be held and that enough seats are
-     * available within the venue. It then puts a hold on the best seats that it finds. Also
-     * calls the function to clear expired seat holds to potentially open up more seats for the customer.
+     * Get the map which stores the seats in HOLD status
+     */
+    public Map<String, SeatHold> getHoldMap() {
+        return this.holdMap;
+    }
+
+    /**
+     * Find and hold seat seat for the user.
+     * Validate the incoming DTO to have valid requested number and seats,
+     * the request number of seats should not be greater than current available seats.
      *
      * @param seatHoldDTO
+     * @return responseEntity
      */
     public ResponseEntity findAndHoldSeats(SeatHoldDTO seatHoldDTO) {
 
-        clearExpiredHolds();
+        utils.clearExpiredHolds();
 
         if (seatHoldDTO.getNumberOfSeats() <= 0) {
             return new ResponseEntity("You must hold at least 1 seat.", HttpStatus.BAD_REQUEST);
@@ -49,10 +68,11 @@ public class ReservationService {
     }
 
     /**
-     * This function is use to set the status of a seat to reserved or to available if the
-     * hold time has expired. It provides the user with an Confirmation Code upon successful
-     * reservation or a message if the hold has expired. It also throws an Exception if provided
-     * with an email that does not match the email tied to the seatHoldId.
+     * Find the seat placed on hold by the user and book them for the user.
+     * Validate the incoming DTO to have valid seatHold, correct user details and the experation timmer on the seats.
+     *
+     * @param seatReservationDTO
+     * @return responseEntity
      */
     public ResponseEntity reserveSeats(SeatReservationDTO seatReservationDTO) {
         SeatHold seatHold = holdMap.get(seatReservationDTO.getSeatHoldId());
@@ -66,33 +86,23 @@ public class ReservationService {
         }
 
         Iterator<Seat> iterator = seatHold.getSeats().iterator();
-        int count = seatHold.getNumberOfSeats();
-        int temp = count;
 
         while (iterator.hasNext()) {
             Seat seatId = iterator.next();
-            for (int row = 0; row < venue.getRowSize(); row++) {
-                for (int column = 0; column < venue.getColumnSize(); column++) {
-                    if (venue.getSeat(row, column) == seatId) {
-                        venue.getSeat(row, column).setStatus(Constants.STATUS_BOOKED);
-                        count--;
-                    }
-                    if (count < temp) {
-                        break;
-                    }
-                }
-                if (count < temp) {
-                    temp--;
-                    break;
-                }
+            if (venue.getSeat(seatId.getRow(), seatId.getColumn()).getStatus().equals(Constants.STATUS_ON_HOLD)) {
+                venue.getSeat(seatId.getRow(), seatId.getColumn()).setStatus(Constants.STATUS_BOOKED);
             }
         }
         UUID uuid = UUID.randomUUID();
         seatHold.setConfirmationCode(uuid.toString());
-        seatHold.setExpirationTimer(Long.valueOf(0));
+        seatHold.setExpirationTimer(0L);
         return new ResponseEntity(seatHold, HttpStatus.OK);
     }
 
+
+    /*
+     * Helper function to verify the user is valid and seats can be booked
+     **/
     private boolean isValidCustomer(SeatHold seatHold, SeatReservationDTO seatReservationDTO) {
         return seatHold.getCustomerEmail().equalsIgnoreCase(seatReservationDTO.getCustomerEmail()) &&
                 seatHold.getFirstName().equalsIgnoreCase(seatReservationDTO.getFirstName()) &&
@@ -100,60 +110,37 @@ public class ReservationService {
     }
 
     /**
-     * A function used to switch expired held seats back to being available.
-     */
-    private void clearExpiredHolds() {
-        Iterator<Integer> holdIterator = holdMap.keySet().iterator();
-        while (holdIterator.hasNext()) {
-            int holdId = holdIterator.next();
-            SeatHold seatHold = holdMap.get(holdId);
-            Iterator<Seat> seatIterator = seatHold.getSeats().iterator();
-            while (seatIterator.hasNext()) {
-                Seat seatId = seatIterator.next();
-                for (int row = 0; row < venue.getRowSize(); row++) {
-                    for (int column = 0; column < venue.getColumnSize(); column++) {
-                        if (venue.getSeat(row, column) == seatId && venue.getSeat(row, column).getStatus().equals(Constants.STATUS_ON_HOLD)) {
-                            if (seatHold.getExpirationTimer() < System.currentTimeMillis()) {
-                                venue.getSeat(row, column).setStatus(Constants.STATUS_FREE);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * In this instance the best seats are considered to be closer to the stage and
-     * the rows alternate the side from which they are filled in order to keep groups
+     * Find and hold the best seats which are considered to be closer to the stage and
+     * filled left to right keep the group of all user toger in one rows.
+     * If the above is not possible, it will place the user closer to the stage on the vaccant seat
+     * from left to right, in this case the user groups may be split in two rows.
      * closer together.
      *
-     * @param numSeats The number of seats to find.
+     * @param The number of seats to find.
+     * @return Set of seats which are placed on for the user.
      */
     private Set<Seat> findBestSeats(int numSeats) {
         Set<Seat> seatFinder = new HashSet<Seat>();
-        int count = numSeats;
         for (int row = 0; row < venue.getRowSize(); row++) {
-            if (row % 2 == 0) {
-                for (int column = 0; column < venue.getColumnSize(); column++) {
-                    // check this
-                    if (count == 0) {
-                        break;
-                    } else if (venue.getSeat(row, column).getStatus().equals(Constants.STATUS_FREE)) {
-                        venue.getSeat(row, column).setStatus(Constants.STATUS_ON_HOLD);
-                        count--;
-                        seatFinder.add(venue.getSeat(row, column));
-                    }
+            if (venue.getAvailableSeatsInRow(row) >= numSeats) {
+                List<Seat> newReservation = new ArrayList<>();
+                for (int i = 0; i < numSeats; i++) {
+                    newReservation.add(new Seat(row, venue.getSeatLayout().get(row).size() + i, Constants.STATUS_ON_HOLD));
                 }
-            } else {
-                for (int column = venue.getColumnSize() - 1; column >= 0; column--) {
-                    // check this
-                    if (count == 0) {
-                        break;
-                    } else if (venue.getSeat(row, column).getStatus().equals(Constants.STATUS_FREE)) {
-                        venue.getSeat(row, column).setStatus(Constants.STATUS_ON_HOLD);
-                        count--;
-                        seatFinder.add(venue.getSeat(row, column));
+                numSeats = 0;
+                venue.getSeatLayout().get(row).addAll(newReservation);
+                seatFinder.addAll(newReservation);
+                break;
+            }
+        }
+        if (numSeats != 0) {
+            for (int row = 0; row < venue.getNumRows() && numSeats > 0; row++) {
+                if (venue.getAvailableSeatsInRow(row) < venue.getNumColumns()) {
+                    for (int i = venue.getColumnSize(row); i < venue.getNumColumns() && numSeats > 0; i++) {
+                        Seat newReservation = new Seat(row, i, Constants.STATUS_ON_HOLD);
+                        numSeats--;
+                        venue.getSeatLayout().get(row).add(newReservation);
+                        seatFinder.add(newReservation);
                     }
                 }
             }

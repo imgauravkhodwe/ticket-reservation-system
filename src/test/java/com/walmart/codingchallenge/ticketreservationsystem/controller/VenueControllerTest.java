@@ -2,7 +2,7 @@
  * @author Gaurav Khodwe
  */
 
-package com.walmart.codingchallenge.ticketreservationsystem.service;
+package com.walmart.codingchallenge.ticketreservationsystem.controller;
 
 import com.walmart.codingchallenge.ticketreservationsystem.TicketReservationSystemApplication;
 import com.walmart.codingchallenge.ticketreservationsystem.model.NumberOfSeatsDTO;
@@ -15,21 +15,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TicketReservationSystemApplication.class)
-public class VenueServiceTest {
+public class VenueControllerTest {
     @Autowired
-    VenueService venueService;
+    VenueController venueController;
 
     @Test
     public void getTotalSeatsTest() {
-        ResponseEntity<NumberOfSeatsDTO> responseEntity = venueService.getTotalSeats();
+        ResponseEntity<NumberOfSeatsDTO> responseEntity = venueController.getTotalSeats();
         assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
         assertEquals(responseEntity.getBody().getNumberOfSeat(), 100);
     }
 
     @Test
     public void getAvailableSeatTest() {
-        ResponseEntity<NumberOfSeatsDTO> responseEntity = venueService.getTotalSeats();
+        ResponseEntity<NumberOfSeatsDTO> responseEntity = venueController.getTotalSeats();
         assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
         assertEquals(responseEntity.getBody().getNumberOfSeat(), 100);
     }
+
 }
