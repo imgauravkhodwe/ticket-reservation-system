@@ -1,3 +1,7 @@
+/**
+ * @author Gaurav Khodwe
+ */
+
 package com.walmart.codingchallenge.ticketreservationsystem.model;
 
 import org.junit.jupiter.api.Test;

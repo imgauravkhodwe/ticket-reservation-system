@@ -1,3 +1,7 @@
+/**
+ * @author Gaurav Khodwe
+ */
+
 package com.walmart.codingchallenge.ticketreservationsystem.model;
 
 import lombok.AllArgsConstructor;
@@ -15,5 +19,5 @@ public class SeatReservationDTO extends Customer {
     @NotNull(message = "seatHoldId must not be null")
     @NotEmpty(message = "seatHoldId must not be empty")
     @NotBlank(message = "seatHoldId must not be blank")
-    private int seatHoldId;
+    private String seatHoldId;
 }

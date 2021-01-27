@@ -7,7 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 class TicketReservationSystemApplicationTests {
 
     @Test
-    void contextLoads() {
+    public void main() {
+        TicketReservationSystemApplication.main(new String[]{});
     }
 
 }

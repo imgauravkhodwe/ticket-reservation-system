@@ -1,15 +1,27 @@
+/**
+ * @author Gaurav Khodwe
+ */
+
 package com.walmart.codingchallenge.ticketreservationsystem.model;
 
-import com.walmart.codingchallenge.ticketreservationsystem.util.Constants;
+import com.walmart.codingchallenge.ticketreservationsystem.util.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class Venue {
     private final static int numRows = 10;
     private final static int numColumns = 50;
     private final static int venueSize = numColumns * numRows;
-    private final static Seat[][] seat = new Seat[numRows][numColumns];
-   /// private final Map<Integer, List<Integer>> seats
+    private final Map<Integer, List<Seat>> seats = new HashMap<>();
+
+    @Autowired
+    Utils utils;
 
 
     /**
@@ -20,38 +32,50 @@ public class Venue {
     }
 
     public void buildVenue() {
-        for (int a = 0; a < getRowSize(); a++) {
-            for (int b = 0; b < getColumnSize(); b++) {
-                seat[a][b] = new Seat(a, b, Constants.STATUS_FREE);
-            }
+        for (int row = 0; row < numRows; row++) {
+            seats.put(row, new ArrayList<>());
         }
     }
 
     public int getAvailSeats() {
+        utils.clearExpiredHolds();
         int availSeats = 0;
-        for (int a = 0; a < getRowSize(); a++) {
-            for (int b = 0; b < getColumnSize(); b++) {
-                if (seat[a][b].isFree()) {
-                    availSeats++;
-                }
-            }
+        for (int row = 0; row < getRowSize(); row++) {
+            if (seats.get(row).size() < numColumns)
+                availSeats = availSeats + this.getAvailableSeatsInRow(row);
         }
         return availSeats;
     }
 
     public Seat getSeat(int a, int b) {
-        return seat[a][b];
+        return seats.get(a).get(b);
     }
 
     public int getRowSize() {
-        return seat.length;
+        return seats.size();
     }
 
-    public int getColumnSize() {
-        return seat[0].length;
+    public int getColumnSize(int row) {
+        return seats.get(row).size();
     }
 
     public int getVenueSize() {
         return venueSize;
+    }
+
+    public Map<Integer, List<Seat>> getSeatLayout() {
+        return seats;
+    }
+
+    public int getNumColumns() {
+        return numColumns;
+    }
+
+    public int getNumRows() {
+        return numRows;
+    }
+
+    public int getAvailableSeatsInRow(int row) {
+        return (numColumns - seats.get(row).size());
     }
 }
